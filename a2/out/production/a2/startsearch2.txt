@@ -1,0 +1,230 @@
+import java.io.IOException;
+import java.io.FileNotFoundException;
+
+
+public class StartSearch {
+    private Map targetMap;
+    private int numArrows;
+    private int inertia;
+    private int direction;
+
+
+    public StartSearch(String filename) {
+        this.inertia = 0;
+        this.direction = -1;
+        try {
+            targetMap = new Map(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        numArrows = targetMap.quiverSize();
+    }
+
+    private MapCell nextCell (MapCell cell){
+        System.out.println("inertia: " + inertia);
+        MapCell bestCell;
+        //follow path if possible
+        if(this.direction == 0){
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(0) != null && !cell.getNeighbour(0).isMarked()) {
+                this.inertia++;
+                System.out.println("zero");
+                return cell.getNeighbour(0);
+            }
+        }
+
+        else if(this.direction == 1){
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(1) != null && !cell.getNeighbour(1).isMarked()) {
+                this.inertia++;
+                System.out.println("one");
+                return cell.getNeighbour(1);
+            }
+        }
+
+        else if(this.direction == 2){
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(2) != null && !cell.getNeighbour(2).isMarked()) {
+                this.inertia++;
+                System.out.println("two");
+                return cell.getNeighbour(2);
+            }
+        }
+
+        else if(this.direction == 3){
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(3) != null && !cell.getNeighbour(3).isMarked()) {
+                this.inertia++;
+                System.out.println("three");
+                return cell.getNeighbour(3);
+            }
+        }
+
+        if(this.inertia == 3){//if inertia reached, can no longer turn
+            return null;
+        }
+        //i have a hunch that you gotta do this.direction and this.inertia for it to
+        // modify the global variable direction and inertia
+        for (int i = 0;  i < 4; i ++) { //if path is blocked, turn
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(i) != null && !cell.getNeighbour(i).isMarked()) {
+                    // if cell is free or is destination cell
+                    if (cell.getNeighbour(i).isTarget()) {
+                        bestCell = cell.getNeighbour(i);
+                        this.direction = i;
+                        return bestCell;
+                    }
+
+                    else if (cell.getNeighbour(i).isCrossPath()) {
+                        bestCell = cell.getNeighbour(i);
+                        this.direction = i;
+                        return bestCell;
+                    }
+
+                    else if (cell.getNeighbour(i).isVerticalPath() || cell.getNeighbour(i).isHorizontalPath()) {
+                        bestCell = cell.getNeighbour(i);
+                        this.direction = i;
+                        return bestCell;
+                    }
+
+            }
+
+        }
+        return null; // if no valid cell then return null
+    }
+
+
+ //===========================================================================================================
+
+
+    private MapCell nextCell2 (MapCell cell){
+        MapCell bestCell;
+        //follow path if possible
+        if(this.direction == 0){
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(0) != null && !cell.getNeighbour(0).isMarked()) {
+                return cell.getNeighbour(0);
+            }
+        }
+
+        else if(this.direction == 1){
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(1) != null && !cell.getNeighbour(1).isMarked()) {
+                return cell.getNeighbour(1);
+            }
+        }
+
+        else if(this.direction == 2){
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(2) != null && !cell.getNeighbour(2).isMarked()) {
+                return cell.getNeighbour(2);
+            }
+        }
+
+        else if(this.direction == 3){
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(3) != null && !cell.getNeighbour(3).isMarked()) {
+                return cell.getNeighbour(3);
+            }
+        }
+
+        if(this.inertia == 3){//if inertia reached, can no longer turn
+            return null;
+        }
+        //i have a hunch that you gotta do this.direction and this.inertia for it to
+        // modify the global variable direction and inertia
+        for (int i = 0;  i < 4; i ++) { //if path is blocked, turn
+            // if cell exists & is NOT marked
+            if (cell.getNeighbour(i) != null && !cell.getNeighbour(i).isMarked()) {
+                // if cell is free or is destination cell
+                if (cell.getNeighbour(i).isTarget()) {
+                    bestCell = cell.getNeighbour(i);
+                    this.direction = i;
+                    return bestCell;
+                }
+
+                else if (cell.getNeighbour(i).isCrossPath()) {
+                    bestCell = cell.getNeighbour(i);
+                    this.direction = i;
+                    return bestCell;
+                }
+
+                else if (cell.getNeighbour(i).isVerticalPath() || cell.getNeighbour(i).isHorizontalPath()) {
+                    bestCell = cell.getNeighbour(i);
+                    this.direction = i;
+                    return bestCell;
+                }
+
+            }
+
+        }
+        return null; // if no valid cell then return null
+    }
+//=======================================================================================================
+
+
+    public static void main(String[] args){
+        ArrayStack stack = new ArrayStack(); // creates empty stack
+        StartSearch path = new StartSearch(args[0]); //takes first commandline arg
+        int distance = Integer.parseInt(args[1]); //takes second commandline arg
+        int targetsfound = 0;
+        int returns = 0;
+        MapCell cell = path.targetMap.getStart(); // gets starting cell
+
+
+        while (path.numArrows != 0) { //While Cupid still has arrows
+            stack.push(cell); // pushes starting cell to stack
+            cell.markInStack();
+            path.numArrows--;
+            while (!stack.isEmpty() && distance != 0 && returns < 3) {
+                MapCell currentCell = (MapCell) stack.peek();    // looks at cell at top of stack
+                if(currentCell == null){
+                }
+                // if the cell at the top of the stack is the destination cell, break out of the loop
+                if (currentCell.isTarget()) {
+                    targetsfound++;
+                    currentCell.markInStack();
+                    while(!stack.isEmpty()) {
+                            stack.pop();
+                    }
+                    returns=0;
+                    distance=Integer.parseInt(args[1]);
+                    path.inertia=0;
+                    break;
+                }
+
+                // if any of neighboring cells is a blockade, remove top cell from stack
+                if (currentCell.isBlackHole()) {
+                    MapCell poppedCell = (MapCell) stack.pop();
+                    poppedCell.markOutStack();
+                    currentCell = (MapCell) stack.peek();
+                    returns++;
+                    distance++;
+                }
+
+                // checks for unmarked neighboring cells
+                if (path.nextCell2(currentCell) != null) {
+                    distance--;
+                    System.out.println("distance: " + distance);
+                    try {
+                        stack.push(path.nextCell(currentCell));
+                        (path.nextCell2(currentCell)).markInStack();
+                    } catch (NullPointerException e) {
+                        System.out.println("Null pointer");
+                    }
+                }
+
+                else {
+                    returns++;
+                    distance++;
+                    stack.pop(); //backtrack
+                }
+
+            }
+            System.out.println("Arrow length " + stack.size());
+            System.out.println("Targets found: " + targetsfound);
+        }
+    }
+
+}
+
